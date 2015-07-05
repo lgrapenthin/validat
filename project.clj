@@ -1,5 +1,5 @@
 (defproject validat "0.1.0"
-  :description "Simple custom validation checkers."
+  :description "Simple custom validation framework."
   :url "https://github.com/lgrapenthin/validat"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
