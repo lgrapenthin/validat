@@ -1,33 +1,12 @@
 (ns validat.core
-  "Simple custom validation without too much hustle."
+  "A checker returns a preferably lazy seq of errors or nil if the
+  value, its only argument, passes the check.  An error should follow
+  this format:
+  
+     [identifier optional*]
+
+  Non namespaced identifier keywords are reserved for validat."
   (:refer-clojure :exclude [and or]))
-
-;; A checker returns a preferably lazy seq of errors or nil if the
-;; value passes.  Errors should follow this format:
-
-;;   [identifier optional*]
-
-;;   Non namespaced identifier keywords are reserved for validat.
-
-(defn and
-  "Composes a lazy checker that returns any errors returned by checkers."
-  [& checkers]
-  (fn [x]
-    (not-empty (mapcat (catching #(% x)) checkers))))
-
-(defn or
-  "Composes a lazy checker that returns the errors by checkers
-  as [[:or & errors]]."
-  [& checkers]
-  (fn [x]
-    (let [errors (mapcat (catching #(% x)) checkers)]
-      (if (every? seq errors)
-        [(cons :or errors)]))))
-
-(defn checker
-  "Creates a checker from a pred."
-  [pred error]
-  (fn [x] (if (pred x) nil (list error))))
 
 (defn- catching
   [f]
@@ -36,7 +15,27 @@
          (catch #?(:clj Throwable, :cljs :default) e
                 [[:exception e]]))))
 
-;; Maps
+(defn and
+  "Compose a lazy checker that returns any errors returned by checkers."
+  [& checkers]
+  (fn [x]
+    (not-empty (mapcat (catching #(% x)) checkers))))
+
+(defn or
+  "Compose a lazy checker that returns the errors by checkers
+  as [[:or & errors]]."
+  [& checkers]
+  (fn [x]
+    (let [errors (mapcat (catching #(% x)) checkers)]
+      (if (every? seq errors)
+        [(cons :or errors)]))))
+
+(defn checker
+  "Create a checker from a pred."
+  [pred error]
+  (fn [x] (if (pred x) nil (list error))))
+
+;; MAPS
 (defn exclusive-keys
   "Return checker for a map having no other keys than ks."
   [ks]
@@ -99,7 +98,7 @@
                                    (map? ch) map-checker)))
                        m)
            exclusive? (cons (exclusive-keys (keys m))))
-         (apply _and))))
+         (apply and))))
 
 (defn- error-map*
   [errors]
