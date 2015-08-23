@@ -106,7 +106,7 @@
 
   Errors are specified in exclusive-keys and at-key."
   [m]
-  (let [required (::required m)
+  (let [required (set (::required m))
         exclusive? (::exclusive? m true)
         m (dissoc m ::exclusive? ::required)
         required (case required
