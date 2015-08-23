@@ -102,14 +102,12 @@
   keyword :all, meaning :all keys in m
 
   :validat.core/exclusive? - If non-nil, no other keys than those in m
-  are allowed.
-
-  By default, all keys are optional.
+  are allowed.  Defaults to true.
 
   Errors are specified in exclusive-keys and at-key."
   [m]
   (let [required (::required m)
-        exclusive? (::exclusive? m)
+        exclusive? (::exclusive? m true)
         m (dissoc m ::exclusive? ::required)
         required (case required
                    :all (set (keys m))
