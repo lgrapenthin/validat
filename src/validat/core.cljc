@@ -13,7 +13,7 @@
   (fn [x]
     (try (f x)
          (catch #?(:clj Throwable, :cljs :default) e
-                [[:exception e]]))))
+                (delay [[:exception e]])))))
 
 (defn and
   "Create a checker that returns all failing checks if one check fails.
@@ -47,7 +47,7 @@
 (defn check
   "Create a check from a pred with a fixed error."
   [pred error]
-  (fn [x] (if (pred x) nil (delay (list error)))))
+  (fn [x] (if (pred x) nil (delay [error]))))
 
 ;; MAPS
 (defn exclusive-keys
@@ -152,6 +152,13 @@
   (def check-str (check string? [:string]))
   (def check-num (check number? [:number]))
   (def check-pos (check pos? [:pos]))
+
+  (def failing-check (and check-str
+                          check-num
+                          check-pos
+                          ))
+
+  @(failing-check "foo")
 
   (def check-my-map (comp error-map
                           #(some-> % deref)
