@@ -106,12 +106,12 @@
 
   Errors are specified in exclusive-keys and at-key."
   [m]
-  (let [required (set (::required m))
+  (let [required (::required m)
         exclusive? (::exclusive? m true)
         m (dissoc m ::exclusive? ::required)
         required (case required
                    :all (set (keys m))
-                   required)]
+                   (set required))]
     (->> (cond->> (map (fn [[k ch]]
                          (at-key (if (contains? required k)
                                    :required
